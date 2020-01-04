@@ -172,6 +172,25 @@ public class Opcodes {
                 return POSITIVE;
             }))
             .build();
+    
+    public static final Opcode EVAL_REDSTONE_COMPARATOR = Opcode.builder()
+            .id("eval_rs_comp")
+            .description(
+                    TextFormatting.GREEN + "Eval: read redstone comparator",
+                    "read the redstone value coming to a specific",
+                    "side as if there was a comparator")
+            .outputDescription("read redstone value (integer)")
+            .category(CATEGORY_REDSTONE)
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).description("side of (networked) block").build())
+            .icon(1, 0)
+            .runnable(((processor, program, opcode) -> {
+                BlockSide side = processor.evaluateSideParameterNonNull(opcode, program, 0);
+                int rs = processor.comparatorRead(side); // Function still needs work. This must be replaced by a function that reads the value that a comparator would output from the block adjacent to "side" //
+                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(rs)).build());
+                return POSITIVE;
+            }))
+            .build();
 
     public static final Opcode DO_STOP = Opcode.builder()
             .id("do_stop")
