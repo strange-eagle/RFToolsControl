@@ -183,7 +183,7 @@ public class Opcodes {
             .category(CATEGORY_REDSTONE)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).description("side of (networked) block").build())
-            .icon(1, 0)
+            .icon(11, 8)
             .runnable(((processor, program, opcode) -> {
                 BlockSide side = processor.evaluateSideParameterNonNull(opcode, program, 0);
                 int rs = processor.readRedstoneInComparator(side);
