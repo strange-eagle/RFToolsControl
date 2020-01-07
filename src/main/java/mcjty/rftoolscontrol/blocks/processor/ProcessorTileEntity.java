@@ -43,6 +43,10 @@ import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.logic.running.ProgException;
 import mcjty.rftoolscontrol.logic.running.RunningProgram;
 import mcjty.rftoolscontrol.network.PacketGetFluids;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItemFrame;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
@@ -79,8 +83,12 @@ import net.minecraftforge.items.wrapper.InvWrapper;
 import net.minecraftforge.items.wrapper.SidedInvWrapper;
 import org.apache.commons.lang3.tuple.Pair;
 
+import com.google.common.base.Predicate;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import java.mcjty.rftoolscontrol.logic.registry.Opcode;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
@@ -260,6 +268,48 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             return 0;
         }
         return getWorld().getRedstonePower(p.offset(facing), facing);
+    }
+    
+    @Override
+    public int readRedstoneInComparator(@Nonnull BlockSide side) 
+    {
+        private int rs_comp = getWorld().getRedstonePower(p.offset(facing), facing);
+    	EnumFacing processor_facing = side.getSide();
+        EnumFacing comparator_facing = processor_facing.getOpposite();
+    	BlockPos block_pos = getAdjacentPosition(side);
+        IBlockState iblockstate = worldIn.getBlockState(block_pos);
+        if (block_pos == null)
+        {
+            return 0;
+        }
+        if (iblockstate.hasComparatorInputOverride())
+        {
+            rs_comp = iblockstate.getComparatorInputOverride(worldIn, block_pos);
+        }
+        else if (rs_comp < 15 && iblockstate.isNormalCube())
+        {
+
+            if (iblockstate.hasComparatorInputOverride())
+            {
+            	rs_comp = iblockstate.getComparatorInputOverride(worldIn, blockpos);
+            }
+            else if (iblockstate.getMaterial() == Material.AIR)
+            {
+                private List<EntityItemFrame> list = worldIn.<EntityItemFrame>getEntitiesWithinAABB(EntityItemFrame.class, new AxisAlignedBB((double)pos.getX(), (double)pos.getY(), (double)pos.getZ(), (double)(pos.getX() + 1), (double)(pos.getY() + 1), (double)(pos.getZ() + 1)), new Predicate<Entity>()
+                {
+                    boolean apply(@Nullable Entity p_apply_1_)
+                    {
+                        return p_apply_1_ != null && p_apply_1_.getHorizontalFacing() == facing;
+                    }
+                });
+
+                if (list.size() == 1)
+                {
+                	rs_comp = (EntityItemFrame)list.get(0).getAnalogOutput();
+                }
+            }    
+        }
+        return rs_comp;
     }
 
     @Override

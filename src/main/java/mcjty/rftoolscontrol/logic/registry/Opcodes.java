@@ -173,6 +173,25 @@ public class Opcodes {
             }))
             .build();
 
+    public static final Opcode EVAL_REDSTONE_COMPARATOR = Opcode.builder()
+            .id("eval_rs_comp")
+            .description(
+                    TextFormatting.GREEN + "Eval: read redstone",
+                    "read the redstone value coming to a specific",
+                    "side as if it was read from a comparator")
+            .outputDescription("read redstone value (integer)")
+            .category(CATEGORY_REDSTONE)
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).description("side of (networked) block").build())
+            .icon(1, 0)
+            .runnable(((processor, program, opcode) -> {
+                BlockSide side = processor.evaluateSideParameterNonNull(opcode, program, 0);
+                int rs = processor.readRedstoneInComparator(side);
+                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(rs)).build());
+                return POSITIVE;
+            }))
+            .build();
+
     public static final Opcode DO_STOP = Opcode.builder()
             .id("do_stop")
             .description(
@@ -2210,6 +2229,7 @@ public class Opcodes {
         register(DO_GFX_LINE);
         register(DO_GFX_TEXT);
         register(DO_GFX_CLEAR);
+        register(EVAL_RS_COMP);
     }
 
     public static void register(Opcode opcode) {
